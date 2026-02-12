@@ -31,7 +31,7 @@
     },
     "bundle": {
       "active": true,
-      "category": "HealthAndFitness",
+      "category": "Healthcare and Fitness",
       "copyright": "",
       "deb": {
         "depends": []

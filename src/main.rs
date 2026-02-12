@@ -4,7 +4,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::{Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, CustomMenuItem};
-use tauri::api::notification::Notification;
 
 fn main() {
     // 创建系统托盘菜单
