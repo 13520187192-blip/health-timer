@@ -16,10 +16,10 @@ fn force_show_window(window: tauri::Window) {
     #[cfg(target_os = "macos")]
     {
         use cocoa::appkit::NSApplication;
-        use cocoa::base::nil;
+        use cocoa::base::{nil, YES};
         unsafe {
             let app = NSApplication::sharedApplication(nil);
-            app.activateIgnoringOtherApps_(true);
+            app.activateIgnoringOtherApps_(YES);
         }
     }
 }
