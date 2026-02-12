@@ -27,6 +27,13 @@
       },
       "process": {
         "relaunch": true
+      },
+      "window": {
+        "all": false,
+        "setAlwaysOnTop": true,
+        "show": true,
+        "setFocus": true,
+        "unminimize": true
       }
     },
     "bundle": {

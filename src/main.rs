@@ -5,6 +5,19 @@
 
 use tauri::{Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, CustomMenuItem};
 
+#[tauri::command]
+fn force_show_window(window: tauri::Window) {
+    let _ = window.unminimize();
+    let _ = window.show();
+    let _ = window.set_always_on_top(true);
+    let _ = window.set_focus();
+}
+
+#[tauri::command]
+fn dismiss_alert(window: tauri::Window) {
+    let _ = window.set_always_on_top(false);
+}
+
 fn main() {
     // 创建系统托盘菜单
     let quit = CustomMenuItem::new("quit".to_string(), "退出");
@@ -20,6 +33,7 @@ fn main() {
     let system_tray = SystemTray::new().with_menu(tray_menu);
 
     tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![force_show_window, dismiss_alert])
         .setup(|app| {
             let window = app.get_window("main").unwrap();
             window.show().unwrap();
