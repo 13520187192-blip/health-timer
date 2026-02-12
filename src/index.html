@@ -7,6 +7,44 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- 背景轮播层 - 休息模式显示 -->
+    <div class="background-slideshow" id="bgSlideshow">
+        <div class="bg-slide active" style="background-image: url('assets/backgrounds/bg_01_office_sunset.jpg')"></div>
+        <div class="bg-slide" style="background-image: url('assets/backgrounds/bg_02_sea_dusk.jpg')"></div>
+        <div class="bg-slide" style="background-image: url('assets/backgrounds/bg_03_buildings_golden.jpg')"></div>
+        <div class="bg-slide" style="background-image: url('assets/backgrounds/bg_04_sunset_horizon.jpg')"></div>
+        <div class="bg-slide" style="background-image: url('assets/backgrounds/bg_05_urban_twilight.jpg')"></div>
+        <div class="bg-slide" style="background-image: url('assets/backgrounds/bg_06_palm_pathway.jpg')"></div>
+        <div class="bg-slide" style="background-image: url('assets/backgrounds/bg_07_birds_sky.jpg')"></div>
+        <div class="bg-slide" style="background-image: url('assets/backgrounds/bg_08_water_abstract.jpg')"></div>
+        <div class="bg-slide" style="background-image: url('assets/backgrounds/bg_09_city_window.jpg')"></div>
+        <div class="bg-slide" style="background-image: url('assets/backgrounds/bg_10_sign_summer.jpg')"></div>
+        <div class="bg-slide" style="background-image: url('assets/backgrounds/bg_11_city_reflection.jpg')"></div>
+        <div class="bg-slide" style="background-image: url('assets/backgrounds/bg_12_breeze_sign.jpg')"></div>
+        <div class="bg-overlay"></div>
+    </div>
+
+    <!-- SVG 渐变定义 -->
+    <svg width="0" height="0" style="position: absolute;">
+        <defs>
+            <!-- 工作模式渐变 - 青绿色 -->
+            <linearGradient id="workGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#2a9d8f;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#48c9b0;stop-opacity:1" />
+            </linearGradient>
+            <!-- 休息模式渐变 - 橙红色 -->
+            <linearGradient id="restGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#e76f51;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#f4a261;stop-opacity:1" />
+            </linearGradient>
+            <!-- 计时器背景光晕 -->
+            <radialGradient id="timerGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" style="stop-color:rgba(244, 162, 97, 0.3);stop-opacity:1" />
+                <stop offset="100%" style="stop-color:rgba(244, 162, 97, 0);stop-opacity:0" />
+            </radialGradient>
+        </defs>
+    </svg>
+
     <!-- 版本和更新 -->
     <div class="version-bar">
         <span>v1.0.1</span>
@@ -21,7 +59,7 @@
     </div>
 
     <!-- 计时器 -->
-    <div class="timer-container">
+    <div class="timer-container" id="timerContainer">
         <svg class="timer-ring" viewBox="0 0 220 220">
             <circle class="timer-ring-bg" cx="110" cy="110" r="100"/>
             <circle class="timer-ring-progress" id="progressRing" cx="110" cy="110" r="100"/>
@@ -79,19 +117,20 @@
         </div>
     </div>
 
-    <!-- 提醒弹窗 -->
+    <!-- 提醒弹窗 - 工作完成 -->
     <div class="overlay" id="workOverlay">
         <div class="overlay-content">
-            <div class="overlay-icon">🍃</div>
+            <div class="overlay-icon">🌅</div>
             <h2 class="overlay-title">该休息了！</h2>
             <p class="overlay-text">第 <span id="overlayCycle">1</span> 轮完成<br>休息 <span id="overlayRestTime">15</span> 分钟</p>
             <button class="overlay-btn" onclick="dismissOverlay('work')">开始休息</button>
         </div>
     </div>
 
+    <!-- 提醒弹窗 - 休息结束 -->
     <div class="overlay rest" id="restOverlay">
         <div class="overlay-content">
-            <div class="overlay-icon">💪</div>
+            <div class="overlay-icon">🌊</div>
             <h2 class="overlay-title">休息结束！</h2>
             <p class="overlay-text">开始第 <span id="overlayNextCycle">2</span> 轮？</p>
             <button class="overlay-btn" onclick="dismissOverlay('rest')">开始工作</button>

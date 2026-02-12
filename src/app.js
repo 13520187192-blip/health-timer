@@ -89,6 +89,70 @@ let timeLeft = 30 * 60, cycleCount = 1;
 let timerInterval = null;
 let stats = { workCycles: 0, restCycles: 0, totalMinutes: 0 };
 
+// ==================== 背景轮播系统 ====================
+let bgSlideshowInterval = null;
+let currentBgIndex = 0;
+const bgSlides = document.querySelectorAll('.bg-slide');
+const totalBgs = bgSlides.length;
+const BG_ROTATION_INTERVAL = 6000; // 6秒切换一次
+
+function initBackgroundSlideshow() {
+    if (totalBgs === 0) return;
+    
+    // 预加载图片
+    bgSlides.forEach((slide, index) => {
+        const img = new Image();
+        const url = slide.style.backgroundImage.match(/url\(["']?([^"']+)["']?\)/)?.[1];
+        if (url) {
+            img.src = url;
+            img.onerror = () => {
+                console.warn(`背景图片加载失败: ${url}`);
+                // 使用渐变作为 fallback
+                slide.style.background = `linear-gradient(180deg, 
+                    hsl(${200 + index * 10}, 40%, ${20 + index * 3}%) 0%, 
+                    hsl(${30 + index * 5}, 60%, ${40 + index * 2}%) 100%)`;
+            };
+        }
+    });
+}
+
+function startBackgroundSlideshow() {
+    const slideshow = document.getElementById('bgSlideshow');
+    if (!slideshow || totalBgs === 0) return;
+    
+    slideshow.classList.add('active');
+    document.body.classList.add('rest-mode');
+    
+    // 显示第一张
+    bgSlides.forEach((slide, index) => {
+        slide.classList.toggle('active', index === currentBgIndex);
+    });
+    
+    // 启动自动轮播
+    bgSlideshowInterval = setInterval(() => {
+        bgSlides[currentBgIndex].classList.remove('active');
+        currentBgIndex = (currentBgIndex + 1) % totalBgs;
+        bgSlides[currentBgIndex].classList.add('active');
+    }, BG_ROTATION_INTERVAL);
+}
+
+function stopBackgroundSlideshow() {
+    const slideshow = document.getElementById('bgSlideshow');
+    if (slideshow) {
+        slideshow.classList.remove('active');
+    }
+    document.body.classList.remove('rest-mode');
+    
+    if (bgSlideshowInterval) {
+        clearInterval(bgSlideshowInterval);
+        bgSlideshowInterval = null;
+    }
+    
+    // 重置所有背景
+    bgSlides.forEach(slide => slide.classList.remove('active'));
+    currentBgIndex = 0;
+}
+
 const els = {
     statusDot: document.getElementById('statusDot'),
     statusText: document.getElementById('statusText'),
@@ -108,6 +172,7 @@ function init() {
     loadSettings();
     updateDisplay();
     autoCheckUpdate();
+    initBackgroundSlideshow();
 
     if (window.__TAURI__) {
         document.getElementById('checkUpdateBtn').style.display = 'inline-block';
@@ -248,8 +313,15 @@ async function sendNotification(title, body) {
 }
 
 function dismissOverlay(type) {
-    if (type === 'work') els.workOverlay.classList.remove('show');
-    else els.restOverlay.classList.remove('show');
+    if (type === 'work') {
+        els.workOverlay.classList.remove('show');
+        // 开始休息时启动背景轮播
+        startBackgroundSlideshow();
+    } else {
+        els.restOverlay.classList.remove('show');
+        // 结束休息时停止背景轮播
+        stopBackgroundSlideshow();
+    }
 
     if (window.__TAURI__) {
         window.__TAURI__.invoke('dismiss_alert');
@@ -263,6 +335,7 @@ function dismissOverlay(type) {
 
 function resetTimer() {
     pauseTimer();
+    stopBackgroundSlideshow();
     isWorkPhase = true;
     cycleCount = 1;
     timeLeft = workMinutes * 60;

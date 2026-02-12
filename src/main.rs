@@ -11,6 +11,17 @@ fn force_show_window(window: tauri::Window) {
     let _ = window.show();
     let _ = window.set_always_on_top(true);
     let _ = window.set_focus();
+
+    // macOS: 强制将应用激活到前台（绕过系统焦点保护）
+    #[cfg(target_os = "macos")]
+    {
+        use cocoa::appkit::NSApplication;
+        use cocoa::base::nil;
+        unsafe {
+            let app = NSApplication::sharedApplication(nil);
+            app.activateIgnoringOtherApps_(true);
+        }
+    }
 }
 
 #[tauri::command]
