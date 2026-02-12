@@ -1,6 +1,6 @@
 [package]
 name = "health-timer"
-version = "1.0.0"
+version = "1.0.1"
 description = "健康循环提醒 - 呵护颈椎与眼睛"
 authors = ["You"]
 license = "MIT"
