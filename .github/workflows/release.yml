@@ -6,7 +6,7 @@ on:
       - 'v*.*.*'
 
 jobs:
-  release:
+  build:
     permissions:
       contents: write
     strategy:
@@ -14,11 +14,14 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            target: universal-apple-darwin
-          - os: ubuntu-20.04
-            target: x86_64-unknown-linux-gnu
+            rust_targets: aarch64-apple-darwin,x86_64-apple-darwin
+            tauri_args: --target universal-apple-darwin
+          - os: ubuntu-22.04
+            rust_targets: ''
+            tauri_args: ''
           - os: windows-latest
-            target: x86_64-pc-windows-msvc
+            rust_targets: ''
+            tauri_args: ''
 
     runs-on: ${{ matrix.os }}
 
@@ -26,18 +29,42 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Debug - Verify project files exist
+        shell: bash
+        run: |
+          echo "=== Working Directory ==="
+          pwd
+          echo ""
+          echo "=== Project Root ==="
+          ls -la
+          echo ""
+          echo "=== Icons Directory ==="
+          ls -la icons/
+          echo ""
+          echo "=== Source Directory ==="
+          ls -la src/
+          echo ""
+          echo "=== tauri.conf.json ==="
+          cat tauri.conf.json
+          echo ""
+          echo "=== Cargo.toml ==="
+          cat Cargo.toml
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || matrix.target }}
+          targets: ${{ matrix.rust_targets }}
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
-        with:
-          workspaces: '.'
 
       - name: Install Linux dependencies
-        if: matrix.os == 'ubuntu-20.04'
+        if: matrix.os == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -47,27 +74,48 @@ jobs:
             librsvg2-dev \
             patchelf
 
-      - name: Build and release
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Tauri CLI v1
+        run: cargo install tauri-cli --version "^1.5" --locked
+
+      - name: Build Tauri app
+        shell: bash
+        run: cargo tauri build ${{ matrix.tauri_args }}
+
+      - name: Find build artifacts
+        id: artifacts
+        shell: bash
+        run: |
+          echo "=== Looking for build artifacts ==="
+          # macOS
+          find target -name "*.dmg" 2>/dev/null && echo "Found DMG files"
+          # Windows
+          find target -name "*.msi" 2>/dev/null && echo "Found MSI files"
+          # Linux
+          find target -name "*.deb" 2>/dev/null && echo "Found DEB files"
+          find target -name "*.AppImage" 2>/dev/null && echo "Found AppImage files"
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'Health Timer v__VERSION__'
-          releaseBody: |
-            ## 健康循环提醒桌面版 v__VERSION__
+          tag_name: ${{ github.ref_name }}
+          name: 'Health Timer ${{ github.ref_name }}'
+          body: |
+            ## 健康循环提醒桌面版 ${{ github.ref_name }}
 
             ### 下载链接
             - **macOS**: .dmg 文件（支持 Intel 和 Apple Silicon）
             - **Windows**: .msi 安装包
-            - **Linux**: .deb 安装包
-
-            详见下方 Assets 部分下载安装。
+            - **Linux**: .deb / .AppImage 安装包
 
             ### 安装说明
             - macOS: 下载 .dmg 文件，拖拽到应用程序文件夹
             - Windows: 下载 .msi 文件，双击安装
             - Linux: 下载 .deb 文件，运行 `sudo dpkg -i health-timer_*.deb`
-          releaseDraft: false
-          prerelease: false
-          args: ${{ matrix.os == 'macos-latest' && '--target universal-apple-darwin' || '' }}
+          files: |
+            target/universal-apple-darwin/release/bundle/dmg/*.dmg
+            target/release/bundle/dmg/*.dmg
+            target/release/bundle/msi/*.msi
+            target/release/bundle/deb/*.deb
+            target/release/bundle/appimage/*.AppImage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
