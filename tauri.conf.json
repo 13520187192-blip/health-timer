@@ -1,0 +1,96 @@
+{
+  "build": {
+    "beforeBuildCommand": "",
+    "beforeDevCommand": "",
+    "devPath": "../src",
+    "distDir": "../src",
+    "withGlobalTauri": true
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "notification": {
+        "all": true
+      },
+      "shell": {
+        "open": true
+      },
+      "http": {
+        "all": true,
+        "request": true
+      },
+      "fs": {
+        "all": true
+      },
+      "path": {
+        "all": true
+      },
+      "process": {
+        "relaunch": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "category": "HealthAndFitness",
+      "copyright": "",
+      "deb": {
+        "depends": []
+      },
+      "externalBin": [],
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "identifier": "com.healthtimer.app",
+      "longDescription": "健康循环提醒 - 呵护颈椎与眼睛的桌面应用",
+      "macOS": {
+        "entitlements": null,
+        "exceptionDomain": "",
+        "frameworks": [],
+        "providerShortName": null,
+        "signingIdentity": null
+      },
+      "resources": [],
+      "shortDescription": "定时提醒休息的桌面应用",
+      "targets": "all",
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": ""
+      }
+    },
+    "security": {
+      "csp": null
+    },
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://raw.githubusercontent.com/yourname/health-timer/main/updates.json"
+      ],
+      "dialog": false,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDk5QTcyNjNCQTc0MjUzM0EK"
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "height": 680,
+        "resizable": true,
+        "title": "健康循环提醒",
+        "width": 480,
+        "minWidth": 400,
+        "minHeight": 600,
+        "center": true,
+        "visible": false,
+        "decorations": true
+      }
+    ],
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true,
+      "menuOnLeftClick": false
+    }
+  }
+}
